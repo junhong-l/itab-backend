@@ -57,8 +57,11 @@ services:
     volumes:
       - ./data:/app/data
       - ./logs:/app/logs
-    command: ["--user", "admin", "--pwd", "yourpassword", "--log-keep-days", "7"]
     environment:
+      - ITAB_USER=admin
+      - ITAB_PWD=yourpassword
+      - ITAB_PORT=8445
+      - ITAB_LOG_KEEP_DAYS=7
       - TZ=Asia/Shanghai
 ```
 
@@ -163,6 +166,19 @@ nohup ./itab-backend --port 8445 > /dev/null 2>&1 &
 | `--db` | SQLite 数据库文件路径 | `./data/itab.db` |
 | `--log-dir` | 日志文件目录 | `./logs` |
 | `--log-keep-days` | 日志保留天数（自动清理） | `3` |
+
+## 环境变量
+
+所有配置都支持通过环境变量设置，命令行参数优先级更高。
+
+| 环境变量 | 说明 | 默认值 |
+|----------|------|--------|
+| `ITAB_USER` | 管理员用户名 | `master` |
+| `ITAB_PWD` | 管理员密码 | 自动生成 |
+| `ITAB_PORT` | 服务监听端口 | `8445` |
+| `ITAB_DB` | 数据库文件路径 | `./data/itab.db` |
+| `ITAB_LOG_DIR` | 日志文件目录 | `./logs` |
+| `ITAB_LOG_KEEP_DAYS` | 日志保留天数 | `3` |
 
 ### 参数说明
 

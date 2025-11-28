@@ -28,6 +28,15 @@ COPY --from=builder /app/static ./static
 # 创建数据和日志目录
 RUN mkdir -p /app/data /app/logs
 
+# 环境变量（可在运行时覆盖）
+ENV ITAB_USER=""
+ENV ITAB_PWD=""
+ENV ITAB_PORT=8445
+ENV ITAB_DB="/app/data/itab.db"
+ENV ITAB_LOG_DIR="/app/logs"
+ENV ITAB_LOG_KEEP_DAYS=3
+ENV TZ=Asia/Shanghai
+
 # 暴露端口
 EXPOSE 8445
 
@@ -36,4 +45,3 @@ VOLUME ["/app/data", "/app/logs"]
 
 # 启动命令
 ENTRYPOINT ["./itab-backend"]
-CMD ["--port", "8445", "--db", "/app/data/itab.db", "--log-dir", "/app/logs"]
