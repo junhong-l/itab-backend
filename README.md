@@ -2,6 +2,8 @@
 
 一个用于管理导航页的后台系统，支持用户管理、密钥管理、备份管理和同步记录管理。
 
+[![Docker Image](https://github.com/junhong-l/itab-backend/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/junhong-l/itab-backend/actions/workflows/docker-publish.yml)
+
 ## 功能特性
 
 - 🔐 **用户管理**：管理员可以添加/删除用户
@@ -10,8 +12,73 @@
 - 📊 **同步记录**：查看同步历史，清理旧记录
 - 🔄 **远程同步接口**：支持通过 AccessKey 进行数据同步
 - 📝 **日志管理**：自动日志轮转，支持按天清理
+- 🐳 **Docker 支持**：支持 amd64/arm64 多架构
 
-## 快速开始
+## Docker 部署（推荐）
+
+### 使用 Docker 运行
+
+```bash
+# 拉取镜像
+docker pull ghcr.io/junhong-l/itab-backend:latest
+
+# 运行容器
+docker run -d \
+  --name itab-backend \
+  -p 8445:8445 \
+  -v itab-data:/app/data \
+  -v itab-logs:/app/logs \
+  ghcr.io/junhong-l/itab-backend:latest
+
+# 运行容器（指定管理员账户）
+docker run -d \
+  --name itab-backend \
+  -p 8445:8445 \
+  -v itab-data:/app/data \
+  -v itab-logs:/app/logs \
+  ghcr.io/junhong-l/itab-backend:latest \
+  --user admin --pwd yourpassword
+```
+
+### 使用 Docker Compose
+
+创建 `docker-compose.yml`：
+
+```yaml
+version: '3.8'
+
+services:
+  itab-backend:
+    image: ghcr.io/junhong-l/itab-backend:latest
+    container_name: itab-backend
+    restart: unless-stopped
+    ports:
+      - "8445:8445"
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    command: ["--user", "admin", "--pwd", "yourpassword", "--log-keep-days", "7"]
+    environment:
+      - TZ=Asia/Shanghai
+```
+
+启动服务：
+
+```bash
+docker-compose up -d
+```
+
+### 本地构建镜像
+
+```bash
+# 构建镜像
+docker build -t itab-backend .
+
+# 运行本地构建的镜像
+docker run -d -p 8445:8445 -v itab-data:/app/data itab-backend
+```
+
+## 源码编译
 
 ### 环境要求
 

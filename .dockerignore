@@ -1,0 +1,36 @@
+# 依赖和构建产物
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+vendor/
+
+# 数据文件
+data/
+logs/
+*.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile
+.dockerignore
+
+# 文档
+*.md
+!README.md
+
+# 其他
+导航页备份*.json
+需求.md
