@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iTab 导航页后台管理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 400px;
+        }
+        .login-box h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+            font-size: 24px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e1e1;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        .btn:active {
+            transform: translateY(0);
+        }
+        .error-msg {
+            color: #e74c3c;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        
+        /* 主界面样式 */
+        .app-container {
+            display: none;
+            min-height: 100vh;
+        }
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 240px;
+            height: 100vh;
+            background: #2c3e50;
+            color: white;
+            padding-top: 20px;
+        }
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+        .sidebar-header h2 {
+            font-size: 20px;
+        }
+        .sidebar-header p {
+            font-size: 12px;
+            color: #95a5a6;
+            margin-top: 5px;
+        }
+        .nav-menu {
+            list-style: none;
+        }
+        .nav-menu li {
+            padding: 15px 25px;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .nav-menu li:hover, .nav-menu li.active {
+            background: rgba(255,255,255,0.1);
+        }
+        .nav-menu li.active {
+            border-left: 4px solid #667eea;
+        }
+        .nav-menu li svg {
+            width: 20px;
+            height: 20px;
+        }
+        .main-content {
+            margin-left: 240px;
+            padding: 30px;
+            min-height: 100vh;
+            background: #f5f6fa;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #2c3e50;
+            font-size: 28px;
+        }
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-sm {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+        .btn-sm:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+        
+        /* 卡片和表格 */
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .card-header h3 {
+            color: #2c3e50;
+            font-size: 18px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #555;
+        }
+        tr:hover {
+            background: #f8f9fa;
+        }
+        .badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-success { background: #d4edda; color: #155724; }
+        .badge-danger { background: #f8d7da; color: #721c24; }
+        .badge-warning { background: #fff3cd; color: #856404; }
+        .badge-info { background: #d1ecf1; color: #0c5460; }
+        
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        .modal-header h3 {
+            font-size: 20px;
+            color: #2c3e50;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+        .modal-close:hover {
+            color: #333;
+        }
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        /* 页面区域 */
+        .page { display: none; }
+        .page.active { display: block; }
+        
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .stat-card h4 {
+            color: #95a5a6;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .stat-card .value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #95a5a6;
+        }
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        
+        /* 操作按钮组 */
+        .action-btns {
+            display: flex;
+            gap: 5px;
+        }
+        .action-btns button {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        
+        /* 复制按钮 */
+        .copy-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #667eea;
+            padding: 2px 5px;
+        }
+        .copy-btn:hover {
+            color: #764ba2;
+        }
+        
+        /* 下拉选择 */
+        select {
+            padding: 10px 15px;
+            border: 2px solid #e1e1e1;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        /* 详情展示 */
+        .detail-item {
+            display: flex;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+        .detail-label {
+            width: 120px;
+            color: #95a5a6;
+            font-weight: 500;
+        }
+        .detail-value {
+            flex: 1;
+            color: #2c3e50;
+            word-break: break-all;
+        }
+        
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 登录页面 -->
+    <div class="login-container" id="loginPage">
+        <div class="login-box">
+            <h1>🏠 iTab 后台管理</h1>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>用户名</label>
+                    <input type="text" id="username" required placeholder="请输入用户名">
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" id="password" required placeholder="请输入密码">
+                </div>
+                <button type="submit" class="btn">登 录</button>
+                <p class="error-msg" id="loginError"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- 主应用界面 -->
+    <div class="app-container" id="appContainer">
+        <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>🏠 iTab 管理</h2>
+                <p id="currentUser">管理员</p>
+            </div>
+            <ul class="nav-menu">
+                <li class="active" data-page="users" id="navUsers">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                    用户管理
+                </li>
+                <li data-page="keys">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+                    </svg>
+                    密钥管理
+                </li>
+                <li data-page="backups">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17,8 12,3 7,8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    备份管理
+                </li>
+                <li data-page="records">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/>
+                    </svg>
+                    同步记录
+                </li>
+                <li data-page="settings">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                    个人设置
+                </li>
+                <li data-page="logs" id="navLogs">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14,2 14,8 20,8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <polyline points="10,9 9,9 8,9"/>
+                    </svg>
+                    日志管理
+                </li>
+            </ul>
+            <div style="position: absolute; bottom: 20px; left: 0; right: 0; padding: 0 25px;">
+                <button class="btn-sm btn-secondary" style="width: 100%;" onclick="logout()">退出登录</button>
+            </div>
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="main-content">
+            <!-- 用户管理页面 -->
+            <div class="page active" id="usersPage">
+                <div class="header">
+                    <h1>用户管理</h1>
+                    <div class="header-actions">
+                        <button class="btn-sm btn-primary" onclick="showCreateUserModal()">+ 添加用户</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>用户名</th>
+                                <th>角色</th>
+                                <th>创建时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 密钥管理页面 -->
+            <div class="page" id="keysPage">
+                <div class="header">
+                    <h1>密钥管理</h1>
+                    <div class="header-actions">
+                        <button class="btn-sm btn-primary" onclick="showCreateKeyModal()">+ 创建密钥</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Access Key</th>
+                                <th>Secret Key</th>
+                                <th>创建人</th>
+                                <th>创建时间</th>
+                                <th>过期时间</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="keysTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 备份管理页面 -->
+            <div class="page" id="backupsPage">
+                <div class="header">
+                    <h1>备份管理</h1>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h4>总备份数</h4>
+                        <div class="value" id="totalBackups">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>总同步次数</h4>
+                        <div class="value" id="totalSyncs">0</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>备份名称</th>
+                                <th>备份人</th>
+                                <th>大小</th>
+                                <th>同步次数</th>
+                                <th>上传时间</th>
+                                <th>更新时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="backupsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 同步记录页面 -->
+            <div class="page" id="recordsPage">
+                <div class="header">
+                    <h1>同步记录</h1>
+                    <div class="header-actions">
+                        <select id="cleanDays">
+                            <option value="3">清理3天前</option>
+                            <option value="7">清理7天前</option>
+                            <option value="30">清理30天前</option>
+                            <option value="0">清理全部</option>
+                        </select>
+                        <button class="btn-sm btn-danger" onclick="cleanRecords()">清理记录</button>
+                    </div>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h4>总记录数</h4>
+                        <div class="value" id="totalRecords">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>上传次数</h4>
+                        <div class="value" id="uploadCount">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>下载次数</h4>
+                        <div class="value" id="downloadCount">0</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>备份名称</th>
+                                <th>传输类型</th>
+                                <th>使用密钥</th>
+                                <th>操作人</th>
+                                <th>操作时间</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recordsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 个人设置页面 -->
+            <div class="page" id="settingsPage">
+                <div class="header">
+                    <h1>个人设置</h1>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3>修改密码</h3>
+                    </div>
+                    <form id="changePasswordForm">
+                        <div class="form-group">
+                            <label>原密码</label>
+                            <input type="password" id="oldPassword" required>
+                        </div>
+                        <div class="form-group">
+                            <label>新密码</label>
+                            <input type="password" id="newPassword" required>
+                        </div>
+                        <div class="form-group">
+                            <label>确认新密码</label>
+                            <input type="password" id="confirmPassword" required>
+                        </div>
+                        <button type="submit" class="btn-sm btn-primary">修改密码</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 日志管理页面 -->
+            <div class="page" id="logsPage">
+                <div class="header">
+                    <h1>日志管理</h1>
+                    <div class="header-actions">
+                        <select id="logCleanDays">
+                            <option value="3">清理3天前</option>
+                            <option value="7">清理7天前</option>
+                            <option value="30">清理30天前</option>
+                            <option value="0">清理全部（除今天）</option>
+                        </select>
+                        <button class="btn-sm btn-danger" onclick="cleanLogs()">清理日志</button>
+                        <button class="btn-sm btn-primary" onclick="loadLogs()">刷新</button>
+                    </div>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h4>日志文件数</h4>
+                        <div class="value" id="totalLogFiles">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>总大小</h4>
+                        <div class="value" id="totalLogSize">0 B</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>文件名</th>
+                                <th>大小</th>
+                                <th>修改时间</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 创建用户模态框 -->
+    <div class="modal" id="createUserModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>添加用户</h3>
+                <button class="modal-close" onclick="closeModal('createUserModal')">&times;</button>
+            </div>
+            <form id="createUserForm">
+                <div class="form-group">
+                    <label>用户名</label>
+                    <input type="text" id="newUsername" required>
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" id="newUserPassword" required>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="isAdmin"> 管理员权限
+                    </label>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-sm btn-secondary" onclick="closeModal('createUserModal')">取消</button>
+                    <button type="submit" class="btn-sm btn-primary">创建</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 创建密钥模态框 -->
+    <div class="modal" id="createKeyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>创建密钥</h3>
+                <button class="modal-close" onclick="closeModal('createKeyModal')">&times;</button>
+            </div>
+            <form id="createKeyForm">
+                <div class="form-group">
+                    <label>有效期</label>
+                    <select id="expireDays" style="width: 100%;">
+                        <option value="1">1天</option>
+                        <option value="7">7天</option>
+                        <option value="15">15天</option>
+                        <option value="30" selected>30天</option>
+                        <option value="180">180天</option>
+                        <option value="360">360天</option>
+                        <option value="0">永久</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-sm btn-secondary" onclick="closeModal('createKeyModal')">取消</button>
+                    <button type="submit" class="btn-sm btn-primary">创建</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 密钥详情模态框 -->
+    <div class="modal" id="keyDetailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>密钥详情</h3>
+                <button class="modal-close" onclick="closeModal('keyDetailModal')">&times;</button>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Access Key</div>
+                <div class="detail-value" id="detailAccessKey"></div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Secret Key</div>
+                <div class="detail-value" id="detailSecretKey"></div>
+            </div>
+            <p style="margin-top: 20px; color: #e74c3c; font-size: 14px;">
+                ⚠️ 请妥善保管您的密钥，Secret Key 仅在创建时显示一次！
+            </p>
+            <div class="modal-footer">
+                <button type="button" class="btn-sm btn-primary" onclick="closeModal('keyDetailModal')">我知道了</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 备份详情模态框 -->
+    <div class="modal" id="backupDetailModal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3>备份详情</h3>
+                <button class="modal-close" onclick="closeModal('backupDetailModal')">&times;</button>
+            </div>
+            <div id="backupDetailContent"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn-sm btn-secondary" onclick="closeModal('backupDetailModal')">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let token = localStorage.getItem('token');
+        let currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        const API_BASE = '';
+
+        // API请求封装
+        async function api(url, method = 'GET', data = null) {
+            const options = {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            };
+            if (token) {
+                options.headers['Authorization'] = `Bearer ${token}`;
+            }
+            if (data) {
+                options.body = JSON.stringify(data);
+            }
+            const response = await fetch(API_BASE + url, options);
+            const result = await response.json();
+            if (response.status === 401) {
+                logout();
+                throw new Error('登录已过期');
+            }
+            if (!response.ok) {
+                throw new Error(result.error || '请求失败');
+            }
+            return result;
+        }
+
+        // 登录
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const result = await api('/api/login', 'POST', { username, password });
+                token = result.token;
+                currentUser = {
+                    id: result.user_id,
+                    username: result.username,
+                    is_admin: result.is_admin,
+                    need_change_pwd: result.need_change_pwd
+                };
+                localStorage.setItem('token', token);
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                showApp();
+                
+                if (result.need_change_pwd) {
+                    alert('首次登录，请修改密码！');
+                    switchPage('settings');
+                }
+            } catch (err) {
+                document.getElementById('loginError').textContent = err.message;
+            }
+        });
+
+        // 显示应用
+        function showApp() {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'block';
+            document.getElementById('currentUser').textContent = currentUser.username + (currentUser.is_admin ? ' (管理员)' : '');
+            
+            // 非管理员隐藏用户管理和日志管理
+            if (!currentUser.is_admin) {
+                document.getElementById('navUsers').style.display = 'none';
+                document.getElementById('navLogs').style.display = 'none';
+                switchPage('keys');
+            } else {
+                loadUsers();
+                loadLogs();
+            }
+            
+            loadKeys();
+            loadBackups();
+            loadRecords();
+        }
+
+        // 退出登录
+        function logout() {
+            token = null;
+            currentUser = {};
+            localStorage.removeItem('token');
+            localStorage.removeItem('currentUser');
+            document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('appContainer').style.display = 'none';
+        }
+
+        // 页面切换
+        document.querySelectorAll('.nav-menu li').forEach(item => {
+            item.addEventListener('click', () => {
+                const page = item.dataset.page;
+                switchPage(page);
+            });
+        });
+
+        function switchPage(page) {
+            document.querySelectorAll('.nav-menu li').forEach(li => li.classList.remove('active'));
+            document.querySelector(`[data-page="${page}"]`).classList.add('active');
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(page + 'Page').classList.add('active');
+        }
+
+        // 模态框
+        function showModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        // 用户管理
+        async function loadUsers() {
+            try {
+                const result = await api('/api/users');
+                const tbody = document.getElementById('usersTable');
+                tbody.innerHTML = result.data.map(user => `
+                    <tr>
+                        <td>${user.id}</td>
+                        <td>${user.username}</td>
+                        <td><span class="badge ${user.is_admin ? 'badge-success' : 'badge-info'}">${user.is_admin ? '管理员' : '普通用户'}</span></td>
+                        <td>${formatDate(user.created_at)}</td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="btn-sm btn-danger" onclick="deleteUser(${user.id})">删除</button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error('加载用户失败:', err);
+            }
+        }
+
+        function showCreateUserModal() {
+            document.getElementById('createUserForm').reset();
+            showModal('createUserModal');
+        }
+
+        document.getElementById('createUserForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                await api('/api/users', 'POST', {
+                    username: document.getElementById('newUsername').value,
+                    password: document.getElementById('newUserPassword').value,
+                    is_admin: document.getElementById('isAdmin').checked
+                });
+                closeModal('createUserModal');
+                loadUsers();
+                alert('用户创建成功！');
+            } catch (err) {
+                alert(err.message);
+            }
+        });
+
+        async function deleteUser(id) {
+            if (!confirm('确定要删除此用户吗？')) return;
+            try {
+                await api(`/api/users/${id}`, 'DELETE');
+                loadUsers();
+                alert('用户删除成功！');
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+
+        // 密钥管理
+        async function loadKeys() {
+            try {
+                const result = await api('/api/keys');
+                const tbody = document.getElementById('keysTable');
+                tbody.innerHTML = result.data.map(key => {
+                    const isExpired = key.is_expired || (key.expires_at && new Date(key.expires_at) < new Date());
+                    return `
+                    <tr>
+                        <td>
+                            <code style="font-size: 12px;">${key.access_key}</code>
+                            <button class="copy-btn" onclick="copyText('${key.access_key}')">📋</button>
+                        </td>
+                        <td>
+                            <code style="font-size: 12px;">${key.secret_key.substring(0, 10)}...</code>
+                            <button class="copy-btn" onclick="copyText('${key.secret_key}')">📋</button>
+                        </td>
+                        <td>${key.user?.username || '-'}</td>
+                        <td>${formatDate(key.created_at)}</td>
+                        <td>${key.expires_at ? formatDate(key.expires_at) : '永久'}</td>
+                        <td><span class="badge ${isExpired ? 'badge-danger' : 'badge-success'}">${isExpired ? '已过期' : '有效'}</span></td>
+                        <td>
+                            <div class="action-btns">
+                                ${!isExpired ? `<button class="btn-sm btn-warning" onclick="expireKey(${key.id})">过期</button>` : ''}
+                                <button class="btn-sm btn-danger" onclick="deleteKey(${key.id})">删除</button>
+                            </div>
+                        </td>
+                    </tr>
+                `}).join('');
+            } catch (err) {
+                console.error('加载密钥失败:', err);
+            }
+        }
+
+        function showCreateKeyModal() {
+            showModal('createKeyModal');
+        }
+
+        document.getElementById('createKeyForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                const result = await api('/api/keys', 'POST', {
+                    expire_days: parseInt(document.getElementById('expireDays').value)
+                });
+                closeModal('createKeyModal');
+                loadKeys();
+                
+                // 显示密钥详情
+                document.getElementById('detailAccessKey').textContent = result.data.access_key;
+                document.getElementById('detailSecretKey').textContent = result.data.secret_key;
+                showModal('keyDetailModal');
+            } catch (err) {
+                alert(err.message);
+            }
+        });
+
+        async function expireKey(id) {
+            if (!confirm('确定要使此密钥立即过期吗？')) return;
+            try {
+                await api(`/api/keys/${id}/expire`, 'POST');
+                loadKeys();
+                alert('密钥已过期！');
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+
+        async function deleteKey(id) {
+            if (!confirm('确定要删除此密钥吗？')) return;
+            try {
+                await api(`/api/keys/${id}`, 'DELETE');
+                loadKeys();
+                alert('密钥删除成功！');
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+
+        // 备份管理
+        async function loadBackups() {
+            try {
+                const result = await api('/api/backups');
+                const backups = result.data || [];
+                
+                document.getElementById('totalBackups').textContent = backups.length;
+                document.getElementById('totalSyncs').textContent = backups.reduce((sum, b) => sum + b.sync_count, 0);
+                
+                const tbody = document.getElementById('backupsTable');
+                if (backups.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;">暂无备份数据</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = backups.map(backup => `
+                    <tr>
+                        <td>${backup.name}</td>
+                        <td>${backup.user?.username || '-'}</td>
+                        <td>${formatSize(backup.size)}</td>
+                        <td>${backup.sync_count}</td>
+                        <td>${formatDate(backup.created_at)}</td>
+                        <td>${formatDate(backup.updated_at)}</td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="btn-sm btn-primary" onclick="viewBackup(${backup.id})">详情</button>
+                                <button class="btn-sm btn-success" onclick="downloadBackup(${backup.id})">下载</button>
+                                <button class="btn-sm btn-danger" onclick="deleteBackup(${backup.id})">删除</button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error('加载备份失败:', err);
+            }
+        }
+
+        async function viewBackup(id) {
+            try {
+                const result = await api(`/api/backups/${id}`);
+                const backup = result.data;
+                let dataPreview = '';
+                try {
+                    const data = JSON.parse(backup.data);
+                    dataPreview = `
+                        <div class="detail-item"><div class="detail-label">分区数</div><div class="detail-value">${data.partitions?.length || 0}</div></div>
+                        <div class="detail-item"><div class="detail-label">文件夹数</div><div class="detail-value">${data.folders?.length || 0}</div></div>
+                        <div class="detail-item"><div class="detail-label">书签数</div><div class="detail-value">${data.shortcuts?.length || 0}</div></div>
+                        <div class="detail-item"><div class="detail-label">搜索引擎数</div><div class="detail-value">${data.searchEngines?.length || 0}</div></div>
+                    `;
+                } catch (e) {
+                    dataPreview = '<p>无法解析备份数据</p>';
+                }
+                
+                document.getElementById('backupDetailContent').innerHTML = `
+                    <div class="detail-item"><div class="detail-label">备份名称</div><div class="detail-value">${backup.name}</div></div>
+                    <div class="detail-item"><div class="detail-label">备份大小</div><div class="detail-value">${formatSize(backup.size)}</div></div>
+                    <div class="detail-item"><div class="detail-label">同步次数</div><div class="detail-value">${backup.sync_count}</div></div>
+                    <div class="detail-item"><div class="detail-label">创建时间</div><div class="detail-value">${formatDate(backup.created_at)}</div></div>
+                    <div class="detail-item"><div class="detail-label">更新时间</div><div class="detail-value">${formatDate(backup.updated_at)}</div></div>
+                    <h4 style="margin: 20px 0 10px;">数据概览</h4>
+                    ${dataPreview}
+                `;
+                showModal('backupDetailModal');
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+
+        async function downloadBackup(id) {
+            try {
+                const response = await fetch(`${API_BASE}/api/backups/${id}/download`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.error || '下载失败');
+                }
+                const data = await response.text();
+                const blob = new Blob([data], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                // 从 Content-Disposition 获取文件名，或使用默认名
+                const disposition = response.headers.get('Content-Disposition');
+                let filename = `backup_${id}.json`;
+                if (disposition) {
+                    const match = disposition.match(/filename=(.+)/);
+                    if (match) filename = match[1];
+                }
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+
+        async function deleteBackup(id) {
+            if (!confirm('确定要删除此备份吗？')) return;
+            try {
+                await api(`/api/backups/${id}`, 'DELETE');
+                loadBackups();
+                alert('备份删除成功！');
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+
+        // 同步记录
+        async function loadRecords() {
+            try {
+                const [records, stats] = await Promise.all([
+                    api('/api/sync-records'),
+                    api('/api/sync-records/stats')
+                ]);
+                
+                document.getElementById('totalRecords').textContent = stats.total;
+                document.getElementById('uploadCount').textContent = stats.uploads;
+                document.getElementById('downloadCount').textContent = stats.downloads;
+                
+                const tbody = document.getElementById('recordsTable');
+                const data = records.data || [];
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;">暂无同步记录</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = data.map(record => `
+                    <tr>
+                        <td>${record.backup_name}</td>
+                        <td><span class="badge ${record.trans_type === 'upload' ? 'badge-info' : 'badge-success'}">${record.trans_type === 'upload' ? '上传' : '下载'}</span></td>
+                        <td><code style="font-size: 12px;">${record.access_key || '-'}</code></td>
+                        <td>${record.user?.username || '-'}</td>
+                        <td>${formatDate(record.created_at)}</td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error('加载记录失败:', err);
+            }
+        }
+
+        async function cleanRecords() {
+            const days = parseInt(document.getElementById('cleanDays').value);
+            const msg = days === 0 ? '确定要清理全部记录吗？' : `确定要清理 ${days} 天前的记录吗？`;
+            if (!confirm(msg)) return;
+            
+            try {
+                const result = await api('/api/sync-records/clean', 'POST', { days });
+                loadRecords();
+                alert(`清理成功！删除了 ${result.deleted} 条记录`);
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+
+        // 日志管理
+        async function loadLogs() {
+            try {
+                const data = await api('/api/logs', 'GET');
+                const tbody = document.getElementById('logsTable');
+                if (!tbody) return;
+                
+                // 更新统计信息
+                document.getElementById('totalLogFiles').textContent = data.files ? data.files.length : 0;
+                document.getElementById('totalLogSize').textContent = formatFileSize(data.total_size || 0);
+                
+                if (!data.files || data.files.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #666;">暂无日志文件</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = data.files.map(file => `
+                    <tr>
+                        <td><code>${file.name}</code></td>
+                        <td>${formatFileSize(file.size)}</td>
+                        <td>${formatDate(file.mod_time)}</td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error('加载日志失败:', err);
+            }
+        }
+
+        async function cleanLogs() {
+            const days = parseInt(document.getElementById('logCleanDays').value);
+            const msg = days === 0 ? '确定要清理全部日志（除今天）吗？' : `确定要清理 ${days} 天前的日志吗？`;
+            if (!confirm(msg)) return;
+            
+            try {
+                const result = await api('/api/logs/clean', 'POST', { days });
+                loadLogs();
+                alert(`清理成功！删除了 ${result.deleted} 个日志文件，释放 ${formatFileSize(result.size_freed)} 空间`);
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // 修改密码
+        document.getElementById('changePasswordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const newPwd = document.getElementById('newPassword').value;
+            const confirmPwd = document.getElementById('confirmPassword').value;
+            
+            if (newPwd !== confirmPwd) {
+                alert('两次输入的密码不一致！');
+                return;
+            }
+            
+            try {
+                await api('/api/change-password', 'POST', {
+                    old_password: document.getElementById('oldPassword').value,
+                    new_password: newPwd
+                });
+                alert('密码修改成功！');
+                document.getElementById('changePasswordForm').reset();
+            } catch (err) {
+                alert(err.message);
+            }
+        });
+
+        // 工具函数
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            return date.toLocaleString('zh-CN');
+        }
+
+        function formatSize(bytes) {
+            if (!bytes) return '0 B';
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(1024));
+            return (bytes / Math.pow(1024, i)).toFixed(2) + ' ' + sizes[i];
+        }
+
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('已复制到剪贴板！');
+            });
+        }
+
+        // 初始化
+        if (token) {
+            showApp();
+        }
+    </script>
+</body>
+</html>
