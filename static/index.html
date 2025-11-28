@@ -613,7 +613,7 @@
             <div class="page" id="recordsPage">
                 <div class="header">
                     <h1>同步记录</h1>
-                    <div class="header-actions">
+                    <div class="header-actions" id="recordsAdminActions" style="display: none;">
                         <select id="cleanDays">
                             <option value="3">清理3天前</option>
                             <option value="7">清理7天前</option>
@@ -800,7 +800,7 @@
                 <div class="detail-value" id="detailSecretKey"></div>
             </div>
             <p style="margin-top: 20px; color: #e74c3c; font-size: 14px;">
-                ⚠️ 请妥善保管您的密钥，Secret Key 仅在创建时显示一次！
+                ⚠️ 请妥善保管您的密钥
             </p>
             <div class="modal-footer">
                 <button type="button" class="btn-sm btn-primary" onclick="closeModal('keyDetailModal')">我知道了</button>
@@ -889,14 +889,20 @@
             document.getElementById('appContainer').style.display = 'block';
             document.getElementById('currentUser').textContent = currentUser.username + (currentUser.is_admin ? ' (管理员)' : '');
             
-            // 非管理员隐藏用户管理和日志管理
-            if (!currentUser.is_admin) {
-                document.getElementById('navUsers').style.display = 'none';
-                document.getElementById('navLogs').style.display = 'none';
-                switchPage('keys');
-            } else {
+            // 根据权限控制菜单和功能显示
+            if (currentUser.is_admin) {
+                // 管理员：显示所有菜单
+                document.getElementById('navUsers').style.display = '';
+                document.getElementById('navLogs').style.display = '';
+                document.getElementById('recordsAdminActions').style.display = 'flex';
                 loadUsers();
                 loadLogs();
+            } else {
+                // 非管理员：隐藏用户管理、日志管理和清理功能
+                document.getElementById('navUsers').style.display = 'none';
+                document.getElementById('navLogs').style.display = 'none';
+                document.getElementById('recordsAdminActions').style.display = 'none';
+                switchPage('keys');
             }
             
             loadKeys();
@@ -1015,7 +1021,7 @@
                         <td><span class="badge ${isExpired ? 'badge-danger' : 'badge-success'}">${isExpired ? '已过期' : '有效'}</span></td>
                         <td>
                             <div class="action-btns">
-                                ${!isExpired ? `<button class="btn-sm btn-warning" onclick="expireKey(${key.id})">过期</button>` : ''}
+                                ${!isExpired && currentUser.is_admin ? `<button class="btn-sm btn-warning" onclick="expireKey(${key.id})">过期</button>` : ''}
                                 <button class="btn-sm btn-danger" onclick="deleteKey(${key.id})">删除</button>
                             </div>
                         </td>

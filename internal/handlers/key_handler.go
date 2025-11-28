@@ -101,26 +101,23 @@ func DeleteKey(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "密钥删除成功"})
 }
 
-// ExpireKey 使密钥过期
+// ExpireKey 使密钥过期（仅管理员）
 func ExpireKey(c *gin.Context) {
+	isAdmin := c.GetBool("is_admin")
+	if !isAdmin {
+		c.JSON(http.StatusForbidden, gin.H{"error": "仅管理员可执行此操作"})
+		return
+	}
+
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "无效的密钥ID"})
 		return
 	}
 
-	userID := c.GetUint("user_id")
-	isAdmin := c.GetBool("is_admin")
-
 	var key models.AccessKey
 	if err := database.DB.First(&key, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "密钥不存在"})
-		return
-	}
-
-	// 非管理员只能操作自己的密钥
-	if !isAdmin && key.UserID != userID {
-		c.JSON(http.StatusForbidden, gin.H{"error": "无权操作此密钥"})
 		return
 	}
 

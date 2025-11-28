@@ -31,12 +31,18 @@ func ListSyncRecords(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": records})
 }
 
-// CleanSyncRecords 清理同步记录
+// CleanSyncRecords 清理同步记录（仅管理员）
 type CleanRequest struct {
 	Days int `json:"days"` // 0表示清理全部
 }
 
 func CleanSyncRecords(c *gin.Context) {
+	isAdmin := c.GetBool("is_admin")
+	if !isAdmin {
+		c.JSON(http.StatusForbidden, gin.H{"error": "仅管理员可执行此操作"})
+		return
+	}
+
 	var req CleanRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "参数错误"})
