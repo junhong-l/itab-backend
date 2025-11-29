@@ -29,15 +29,16 @@ type AccessKey struct {
 
 // Backup 备份模型
 type Backup struct {
-	ID        uint      `json:"id" gorm:"primaryKey"`
-	Name      string    `json:"name" gorm:"uniqueIndex;size:255;not null"` // 备份名称，唯一值
-	Data      string    `json:"data,omitempty" gorm:"type:text"`           // JSON数据
-	Size      int64     `json:"size"`                                      // 备份大小（字节）
-	SyncCount int       `json:"sync_count" gorm:"default:0"`               // 同步次数
-	UserID    uint      `json:"user_id" gorm:"not null"`
-	User      User      `json:"user,omitempty" gorm:"foreignKey:UserID"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID                 uint      `json:"id" gorm:"primaryKey"`
+	Name               string    `json:"name" gorm:"uniqueIndex;size:255;not null"` // 备份名称，唯一值
+	Data               string    `json:"data,omitempty" gorm:"type:text"`           // JSON数据
+	Size               int64     `json:"size"`                                      // 备份大小（字节）
+	SyncCount          int       `json:"sync_count" gorm:"default:0"`               // 同步次数
+	PasswordsEncrypted bool      `json:"passwords_encrypted" gorm:"default:true"`   // 密码是否加密
+	UserID             uint      `json:"user_id" gorm:"not null"`
+	User               User      `json:"user,omitempty" gorm:"foreignKey:UserID"`
+	CreatedAt          time.Time `json:"created_at"`
+	UpdatedAt          time.Time `json:"updated_at"`
 }
 
 // SyncRecord 同步记录模型

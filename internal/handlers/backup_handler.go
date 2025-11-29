@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"net/http"
 	"strconv"
 
@@ -110,7 +111,18 @@ func DownloadBackup(c *gin.Context) {
 		return
 	}
 
-	c.Header("Content-Disposition", "attachment; filename="+backup.Name+".json")
-	c.Header("Content-Type", "application/json")
-	c.String(http.StatusOK, backup.Data)
+	// 解析data为对象
+	var backupData interface{}
+	if err := json.Unmarshal([]byte(backup.Data), &backupData); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "解析备份数据失败"})
+		return
+	}
+
+	// 返回完整的导出格式
+	c.JSON(http.StatusOK, gin.H{
+		"version":            "2.0",
+		"exportDate":         backup.UpdatedAt,
+		"passwordsEncrypted": backup.PasswordsEncrypted,
+		"data":               backupData,
+	})
 }

@@ -61,14 +61,27 @@ func SyncDownload(c *gin.Context) {
 	// 打印操作日志
 	log.Printf("[同步] 用户 %s 使用密钥 %s 下载了备份「%s」", username, accessKey, backup.Name)
 
-	c.Header("Content-Type", "application/json")
-	c.String(http.StatusOK, backup.Data)
+	// 解析data为对象
+	var backupData interface{}
+	if err := json.Unmarshal([]byte(backup.Data), &backupData); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "解析备份数据失败"})
+		return
+	}
+
+	// 返回完整的导出格式
+	c.JSON(http.StatusOK, gin.H{
+		"version":            "2.0",
+		"exportDate":         backup.UpdatedAt,
+		"passwordsEncrypted": backup.PasswordsEncrypted,
+		"data":               backupData,
+	})
 }
 
 // SyncUploadRequest 上传请求
 type SyncUploadRequest struct {
-	Name string      `json:"name" binding:"required"` // 备份名称
-	Data interface{} `json:"data" binding:"required"` // 备份数据
+	Name               string      `json:"name" binding:"required"` // 备份名称
+	Data               interface{} `json:"data" binding:"required"` // 备份数据
+	PasswordsEncrypted bool        `json:"passwordsEncrypted"`      // 密码是否加密
 }
 
 // SyncUpload 上传备份数据（远程同步接口）
@@ -101,6 +114,7 @@ func SyncUpload(c *gin.Context) {
 		existingBackup.Data = importData
 		existingBackup.Size = dataSize
 		existingBackup.SyncCount++
+		existingBackup.PasswordsEncrypted = req.PasswordsEncrypted
 		if err := database.DB.Save(&existingBackup).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "更新备份失败"})
 			return
@@ -128,11 +142,12 @@ func SyncUpload(c *gin.Context) {
 
 	// 创建新备份
 	backup := &models.Backup{
-		Name:      req.Name,
-		Data:      importData,
-		Size:      dataSize,
-		SyncCount: 1,
-		UserID:    userID,
+		Name:               req.Name,
+		Data:               importData,
+		Size:               dataSize,
+		SyncCount:          1,
+		PasswordsEncrypted: req.PasswordsEncrypted,
+		UserID:             userID,
 	}
 
 	if err := database.DB.Create(backup).Error; err != nil {
