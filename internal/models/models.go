@@ -54,11 +54,26 @@ type SyncRecord struct {
 
 // 备份数据结构
 type BackupData struct {
-	Partitions    []Partition    `json:"partitions"`
-	Folders       []Folder       `json:"folders"`
-	Shortcuts     []Shortcut     `json:"shortcuts"`
-	SearchEngines []SearchEngine `json:"searchEngines"`
-	Settings      Settings       `json:"settings"`
+	Partitions              []Partition    `json:"partitions"`
+	Folders                 []Folder       `json:"folders"`
+	Shortcuts               []Shortcut     `json:"shortcuts"`
+	SearchEngines           []SearchEngine `json:"searchEngines"`
+	Settings                Settings       `json:"settings"`
+	Passwords               []Password     `json:"passwords,omitempty"`
+	CurrentEngine           int            `json:"currentEngine,omitempty"`
+	CurrentPartition        int            `json:"currentPartition,omitempty"`
+	CurrentPrivatePartition int            `json:"currentPrivatePartition,omitempty"`
+}
+
+// Password 密码条目
+type Password struct {
+	ID        int64  `json:"id"`
+	Name      string `json:"name"`
+	URL       string `json:"url"`
+	Username  string `json:"username"`
+	Password  string `json:"password"`
+	Notes     string `json:"notes"`
+	CreatedAt int64  `json:"createdAt"`
 }
 
 // Partition 工作区/分区
@@ -88,6 +103,7 @@ type Shortcut struct {
 	PartitionID *int   `json:"partitionId"`
 	IsPrivate   bool   `json:"isPrivate"`
 	IsPinned    bool   `json:"isPinned"`
+	Order       int    `json:"order,omitempty"`
 }
 
 // SearchEngine 搜索引擎
