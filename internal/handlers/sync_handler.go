@@ -70,7 +70,7 @@ func SyncDownload(c *gin.Context) {
 
 	// 返回完整的导出格式
 	c.JSON(http.StatusOK, gin.H{
-		"version":            "2.0",
+		"version":            "2.1",
 		"exportDate":         backup.UpdatedAt,
 		"passwordsEncrypted": backup.PasswordsEncrypted,
 		"data":               backupData,

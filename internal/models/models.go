@@ -64,6 +64,7 @@ type BackupData struct {
 	CurrentEngine           int            `json:"currentEngine,omitempty"`
 	CurrentPartition        int            `json:"currentPartition,omitempty"`
 	CurrentPrivatePartition int            `json:"currentPrivatePartition,omitempty"`
+	StandaloneCollapsed     bool           `json:"standaloneCollapsed,omitempty"`
 }
 
 // Password 密码条目
@@ -75,6 +76,8 @@ type Password struct {
 	Password  string `json:"password"`
 	Notes     string `json:"notes"`
 	CreatedAt int64  `json:"createdAt"`
+	UpdatedAt int64  `json:"updatedAt,omitempty"`
+	Encrypted bool   `json:"_encrypted,omitempty"`
 }
 
 // Partition 工作区/分区
@@ -91,7 +94,8 @@ type Folder struct {
 	Name        string `json:"name"`
 	Collapsed   bool   `json:"collapsed"`
 	PartitionID *int   `json:"partitionId"`
-	IsPrivate   bool   `json:"isPrivate"`
+	IsPrivate   bool   `json:"isPrivate,omitempty"`
+	Order       int    `json:"order,omitempty"`
 }
 
 // Shortcut 书签
@@ -100,11 +104,13 @@ type Shortcut struct {
 	Name        string `json:"name"`
 	URL         string `json:"url"`
 	Icon        string `json:"icon"`
+	IconUrl     string `json:"iconUrl,omitempty"`
 	FolderID    *int   `json:"folderId"`
 	PartitionID *int   `json:"partitionId"`
-	IsPrivate   bool   `json:"isPrivate"`
-	IsPinned    bool   `json:"isPinned"`
+	IsPrivate   bool   `json:"isPrivate,omitempty"`
+	IsPinned    bool   `json:"isPinned,omitempty"`
 	Order       int    `json:"order,omitempty"`
+	PinnedOrder int    `json:"pinnedOrder,omitempty"`
 }
 
 // SearchEngine 搜索引擎
@@ -117,17 +123,24 @@ type SearchEngine struct {
 
 // Settings 外观设置
 type Settings struct {
-	BgType         string `json:"bgType"`
-	GradientColor1 string `json:"gradientColor1"`
-	GradientColor2 string `json:"gradientColor2"`
-	GradientAngle  int    `json:"gradientAngle"`
-	SolidColor     string `json:"solidColor"`
-	BgImage        string `json:"bgImage"`
-	IconSize       int    `json:"iconSize"`
-	FolderSize     int    `json:"folderSize"`
-	IconGap        int    `json:"iconGap"`
-	FolderGap      int    `json:"folderGap"`
-	IconRadius     int    `json:"iconRadius"`
-	SearchRadius   int    `json:"searchRadius"`
-	BtnRadius      int    `json:"btnRadius"`
+	BgType           string `json:"bgType"`
+	GradientColor1   string `json:"gradientColor1"`
+	GradientColor2   string `json:"gradientColor2"`
+	GradientAngle    int    `json:"gradientAngle"`
+	SolidColor       string `json:"solidColor"`
+	BgImage          string `json:"bgImage"`
+	IconSize         int    `json:"iconSize"`
+	FolderSize       int    `json:"folderSize"`
+	IconGap          int    `json:"iconGap"`
+	FolderGap        int    `json:"folderGap"`
+	IconRadius       int    `json:"iconRadius"`
+	SearchRadius     int    `json:"searchRadius"`
+	BtnRadius        int    `json:"btnRadius"`
+	LayoutMode       string `json:"layoutMode,omitempty"`
+	BarColumns       int    `json:"barColumns,omitempty"`
+	BarGap           int    `json:"barGap,omitempty"`
+	BarHeight        int    `json:"barHeight,omitempty"`
+	BarWidth         int    `json:"barWidth,omitempty"`
+	FolderBarColumns int    `json:"folderBarColumns,omitempty"`
+	FolderBarHeight  int    `json:"folderBarHeight,omitempty"`
 }

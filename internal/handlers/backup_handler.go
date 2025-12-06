@@ -118,9 +118,14 @@ func DownloadBackup(c *gin.Context) {
 		return
 	}
 
+	// 设置下载文件名
+	filename := backup.Name + ".json"
+	c.Header("Content-Disposition", "attachment; filename=\""+filename+"\"")
+	c.Header("Content-Type", "application/json")
+
 	// 返回完整的导出格式
 	c.JSON(http.StatusOK, gin.H{
-		"version":            "2.0",
+		"version":            "2.1",
 		"exportDate":         backup.UpdatedAt,
 		"passwordsEncrypted": backup.PasswordsEncrypted,
 		"data":               backupData,
